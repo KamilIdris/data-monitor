@@ -2,13 +2,13 @@
 """
 Interface to Profinet via Snap7
 
-Updated 4th April 2018 by Kamil
+Updated 14th April 2018 by Kamil
 """
 
-import snap7
-
-import settings
 import dblayout
+import snap7
+import settings
+import time
 
 def getDBList():
     return [x for x in dir(dblayout) if not x.startswith('__')]
@@ -25,10 +25,15 @@ class PLCLink(object):
         self.client.connect(settings.ip, 0, 2)
 
         data = []
-        for x in self.dblist:
-            raw = self.client.db_get(eval(x+'.dbnum'))
-            # processed = snap7.util.DB(key, raw, )
-            data.append(raw)
+        for x in ['dblayout.'+self.dblist]:
+            dbnum = eval(x+'["dbnum"]')
+            rawbytes = self.client.db_get(dbnum)
+            row = snap7.util.DB(dbnum, rawbytes, eval(x+'["layout"]'),
+                                eval(x+'.size'), eval(x+'["numrows"]'),
+                                layout_offset = eval(x+'["layoutoffset"]'),
+                                db_offset = eval(x+'["dboffset"]'))
+            row['Time'] = time.time()
+            data.append(row)
             
         self.client.disconnect()
         
