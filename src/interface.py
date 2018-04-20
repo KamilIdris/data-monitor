@@ -17,9 +17,9 @@ import matplotlib.pyplot as plt
 import sys
 from time import localtime, strftime
 
-from datastore import DataStore
+from datastore import DataStore, getvars
 from plclink import PLCLink
-
+from plotconfig import PlotConfigurator
 from settings import loginterval
 
 class PlotWidget(tk.Frame):
@@ -28,7 +28,7 @@ class PlotWidget(tk.Frame):
         self.parent = parent
         
         self.fig = plt.Figure()
-        self.axes = self.fig.add_subplot(111)             
+        self.axes = self.fig.add_subplot(111)     
         self.plotcanvas = FigureCanvasTkAgg(self.fig)
         
         tbar = SimpleToolbar(self.plotcanvas, self)
@@ -92,7 +92,9 @@ class App(tk.Frame):
         self.parent = parent
         
         self.datastore = DataStore()
+        
         self.plclink = PLCLink()
+        self.varlist = getvars()
         
         # Two frames, display frame and control frame
         displayfrm = PlotWidget(self, relief=RAISED, borderwidth=1)
@@ -112,13 +114,14 @@ class App(tk.Frame):
             # Log again after specified interval
             self.master.after(loginterval, self.logger)
     def setplot(self):
-        pass    
+        PlotConfigurator(self, self.varlist)
+        
         
 def main():
     root = tk.Tk()
     root.title("Data Monitor")
     app = App(root)
-    app.pack(side="top", fill="both", expand=True)   
+    app.pack(side="top", fill="both", expand=True)  
     app.mainloop()
 
 if __name__ == '__main__':
