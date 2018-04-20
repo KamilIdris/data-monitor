@@ -2,13 +2,13 @@
 """
 Interface to Profinet via Snap7
 
-Updated 14th April 2018 by Kamil
+Updated 20th April 2018 by Kamil
 """
 
 import dblayout
 import snap7
 import settings
-import time
+from time import strftime, localtime
 
 def getDBList():
     return [x for x in dir(dblayout) if not x.startswith('__')]
@@ -32,7 +32,7 @@ class PLCLink(object):
                                 eval(x+'.size'), eval(x+'["numrows"]'),
                                 layout_offset = eval(x+'["layoutoffset"]'),
                                 db_offset = eval(x+'["dboffset"]'))
-            row['Time'] = time.time()
+            row['Time'] = strftime("%b %d %Y %H:%M:%S", localtime())
             data.append(row)
             
         self.client.disconnect()
